@@ -472,59 +472,78 @@ revolve = 0;
 // 돌아가는 속도
 function animRotate() {
     animRotValue += 0.01;
+    if (animRotValue === 0) document.getElementById("transformText").innerHTML = "Cube들을 멈춥니다.";
+    else document.getElementById("transformText").innerHTML = "Cube들을 정방향으로 빠르게 돌아가게 합니다.";
 }
 
 function animReverseRotate() {
     animRotValue -= 0.01;
+    if (animRotValue === 0) document.getElementById("transformText").innerHTML = "Cube들을 멈춥니다.";
+    else document.getElementById("transformText").innerHTML = "Cube들을 역방향으로 빠르게 돌아가게 합니다.";
 }
 
 function animPause() {
+    document.getElementById("transformText").innerHTML = "Cube들의 움직임을 멈춥니다.";
     animRotValue = 0.0;
 }
 
 function trXinc() {
     transX += 0.01;
+    document.getElementById("transformText").innerHTML = "Cube를 X 방향으로 +0.1 이동시킵니다.";
     document.getElementById("webTrX").innerHTML = "transX : " + transX.toFixed(4);
 }
 
 function trXdec() {
     transX -= 0.01;
+    document.getElementById("transformText").innerHTML = "Cube를 X 방향으로 -0.1 이동시킵니다.";
     document.getElementById("webTrX").innerHTML = "transX : " + transX.toFixed(4);
 }
 
 function trYinc() {
     transY += 0.01;
+    document.getElementById("transformText").innerHTML = "Cube를 Y 방향으로 +0.1 이동시킵니다.";
     document.getElementById("webTrY").innerHTML = "transY : " + transY.toFixed(4);
 }
 
 function trYdec() {
     transY -= 0.01;
+    document.getElementById("transformText").innerHTML = "Cube를 Y 방향으로 -0.1 이동시킵니다.";
     document.getElementById("webTrY").innerHTML = "transY : " + transY.toFixed(4);
 }
 
 function trZinc() {
     transZ += 0.01;
+    document.getElementById("transformText").innerHTML = "Cube를 Z 방향으로 +0.1 이동시킵니다.";
     document.getElementById("webTrZ").innerHTML = "transZ : " + transZ.toFixed(4);
 }
 
 function trZdec() {
     transZ -= 0.01;
+    document.getElementById("transformText").innerHTML = "Cube를 Z 방향으로 -0.1 이동시킵니다.";
     document.getElementById("webTrZ").innerHTML = "transZ : " + transZ.toFixed(4);
 }
 
 function moonFar() {
     moonD += 0.1;
+    document.getElementById("transformText").innerHTML = "Moon Cube들을 Main Cube에서 멀어지게 합니다.";
     document.getElementById("moonD").innerHTML = "moonD : " + moonD.toFixed(4);
 }
 
 function moonClose() {
     moonD -= 0.1;
+    document.getElementById("transformText").innerHTML = "Moon Cube들을 Main Cube에서 가까워지게 합니다.";
     document.getElementById("moonD").innerHTML = "moonD : " + moonD.toFixed(4);
 }
 
 function revolveTogle() {
-    if (revolve === 0) revolve = 1;
-    else revolve = 0;
+    if (revolve === 0) {
+        revolve = 1;
+        document.getElementById("transformText").innerHTML = "Moon Cube들을 공전시킵니다.";
+    } else {
+        document.getElementById("transformText").innerHTML = "Moon Cube들을 자전시킵니다.";
+        revolve = 0;
+    }
+
 }
 
 // 화면에 그리는 명령
