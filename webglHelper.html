@@ -12,7 +12,6 @@
     <script type="text/javascript" src="actions.js"></script>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="bootstrap.css">
 
 </head>
@@ -139,9 +138,6 @@
                 <button type="button" class="btn btn-primary" onclick="ditheringToggle()">Dithering Toggle</button><br><br>
             </div>
         </div>
-        <!-- Shading -->
-        <div class="tab-pane fade" id="shading">
-        </div>
         <!-- Transform -->
         <div class="tab-pane fade show active" id="transform">
             <div class="col-5" style="margin: 0 auto;">
@@ -149,18 +145,39 @@
             </div>
             <div class="col-5" style="margin: 0 auto;">
                 <p class="bs-component">
-                    <button type="button" class="btn btn-primary" onclick="trXinc()">Translate X + 0.1</button>
-                    <button type="button" class="btn btn-primary" onclick="trXdec()">Translate X - 0.1</button><br><br>
-                    <button type="button" class="btn btn-primary" onclick="trYinc()">Translate Y + 0.1</button>
-                    <button type="button" class="btn btn-primary" onclick="trYdec()">Translate Y - 0.1</button><br><br>
-                    <button type="button" class="btn btn-primary" onclick="trZinc()">Translate Z + 0.1</button>
-                    <button type="button" class="btn btn-primary" onclick="trZdec()">Translate Z - 0.1</button><br><br>
+                    <!-- Translation -->
+                    <h2 id="nav-tabs">Translation</h2>
+                    <button type="button" class="btn btn-primary" onclick="trXinc()">Translate X + 0.01</button>
+                    <button type="button" class="btn btn-primary" onclick="trXdec()">Translate X - 0.01</button><br><br>
+                    <button type="button" class="btn btn-primary" onclick="trYinc()">Translate Y + 0.01</button>
+                    <button type="button" class="btn btn-primary" onclick="trYdec()">Translate Y - 0.01</button><br><br>
+                    <button type="button" class="btn btn-primary" onclick="trZinc()">Translate Z + 0.01</button>
+                    <button type="button" class="btn btn-primary" onclick="trZdec()">Translate Z - 0.01</button><br><br>
                     <button type="button" class="btn btn-primary" onclick="moonFar()">moon Distance + 0.1</button>
                     <button type="button" class="btn btn-primary" onclick="moonClose()">moon Distance - 0.1</button><br><br>
+                    <!-- Rotation -->
+                    <h2 id="nav-tabs">Rotation</h2>
                     <button type="button" class="btn btn-primary" onclick="revolveTogle()">Revolution or Rotation</button><br><br>
-                    <button type="button" class="btn btn-primary" onclick="animRotate()">Animation Rotate + 0.01</button>
+                    <button type="button" class="btn btn-primary" onclick="animRotate()">Animation Rotate + 0.01</button><br><br>
                     <button type="button" class="btn btn-primary" onclick="animReverseRotate()">Animation Reverse Rotate - 0.01</button><br><br>
-                    <button type="button" class="btn btn-primary" onclick="animPause()">Animation Pause</button>
+                    <button type="button" class="btn btn-primary" onclick="animPause()">Animation Pause</button><br><br>
+                    <!-- Scaling -->
+                    <h2 id="nav-tabs">Scaling</h2>
+                    <button type="button" class="btn btn-primary" onclick="scaleUpX()">Scale X + 0.5</button>
+                    <button type="button" class="btn btn-primary" onclick="scaleDownX()">Scale X - 0.5</button><br><br>
+                    <button type="button" class="btn btn-primary" onclick="scaleUpY()">Scale Y + 0.5</button>
+                    <button type="button" class="btn btn-primary" onclick="scaleDownY()">Scale Y - 0.5</button><br><br>
+                    <button type="button" class="btn btn-primary" onclick="scaleUpZ()">Scale Z + 0.5</button>
+                    <button type="button" class="btn btn-primary" onclick="scaleDownZ()">Scale Z - 0.5</button><br><br>
+                    <!-- Inverse -->
+                    <h2 id="nav-tabs">Inverse</h2>
+                    <p id="inverseText">Inverse가 꺼져 있습니다.</p>
+                    <button type="button" class="btn btn-primary" onclick="InverseToggle()">Inverse Toggle</button><br><br>
+                    <!-- Shear -->
+                    <h2 id="nav-tabs">Shear</h2>
+                    <p id="shearText">Shear가 꺼져 있습니다.</p>
+                    <button type="button" class="btn btn-primary" onclick="ShearUp()">Shear up 1 degree</button><br><br>
+                    <button type="button" class="btn btn-primary" onclick="ShearDown()">Shear down 1 degree</button><br><br>
                 </p>
             </div>
             <table style="margin: 0 auto;" border=1>
@@ -186,6 +203,14 @@
                                                                                             <td id="matrix15">
             </table>
             <br>
+        </div>
+        <!-- Shading -->
+        <div class="tab-pane fade" id="shading">
+            <div class="col-2" style="margin: 0 auto;">
+                <h2 id="nav-tabs">Color</h2>
+                <p id="colorText">Color를 넣지 않았습니다.</p>
+                <button type="button" class="btn btn-primary" onclick="ColorToggle()">Color Toggle</button><br><br>
+            </div>
         </div>
         <!-- Texture -->
         <div class="tab-pane fade" id="texture">

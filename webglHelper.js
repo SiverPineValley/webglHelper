@@ -1,13 +1,19 @@
 var gl;
 var primitive;
+var sx = 1.0,
+    sy = 1.0,
+    sz = 1.0;
 var depthE = true;
 var blendE = true;
 var cullE = false;
 var dithE = false;
+var isInv = false;
 var depthS;
 var blendFactor = [0, 0];
 var blendEq;
 var cullF;
+var shear = 0;
+var isColor = false;
 
 function testGLError(functionLastCalled) {
     /*
@@ -146,17 +152,31 @@ function initialiseBuffer() {
 // 쉐이더 초기화
 function initialiseShaders() {
 
-    // Fragment Shader가 Vertex Shader에서 Attribute로 color를 받고, frag color에 사용. 
-    var fragmentShaderSource = '\
-            varying mediump vec4 color; \
-			varying mediump vec2 texCoord;\
-			uniform sampler2D sampler2d; \
-			void main(void) \
-            { \
-                /* Color Collection */\
-                gl_FragColor = texture2D(sampler2d, texCoord) * texture2D(sampler2d, texCoord); \
-                gl_FragColor.a = 1.0; \
-			}';
+    var fragmentShaderSource;
+    // Fragment Shader가 Vertex Shader에서 Attribute로 color를 받고, frag color에 사용.
+    if (isColor === true) {
+        fragmentShaderSource = '\
+        varying mediump vec4 color; \
+        varying mediump vec2 texCoord;\
+        uniform sampler2D sampler2d; \
+        void main(void) \
+        { \
+            /* Color Collection */\
+            gl_FragColor = 0.5 * color + 0.5 * texture2D(sampler2d, texCoord); \
+            gl_FragColor.a = 1.0; \
+        }';
+    } else {
+        fragmentShaderSource = '\
+        varying mediump vec4 color; \
+        varying mediump vec2 texCoord;\
+        uniform sampler2D sampler2d; \
+        void main(void) \
+        { \
+            /* Color Collection */\
+            gl_FragColor = texture2D(sampler2d, texCoord); \
+            gl_FragColor.a = 1.0; \
+        }';
+    }
 
     // fragment shader object 생성.
     gl.fragShader = gl.createShader(gl.FRAGMENT_SHADER);
@@ -176,34 +196,23 @@ function initialiseShaders() {
     // 벡터가 4개(vec4) javascript코드에서 Transformation Matrix를 제외한 나머지는 알아서 채운다. 마지막은 1.
     // 매트릭스(renderScene에 있음)도 4X4로 받아온다. (vector가 4차원이기 때문)
     // myVertex attribute 사용, myColor attribute 사용
-    // varying으로 color 선언 후, mycolor를 color에 넣는다.
+    // varying으로 color 선언 후, mycolor를 color에 넣는다. 
     var vertexShaderSource = '\
-			attribute highp vec3 myVertex; \
-			attribute highp vec4 myColor; \
-			attribute highp vec2 myUV; \
-			uniform mediump mat4 Pmatrix; \
-            uniform mediump mat4 Vmatrix; \
-            uniform mediump mat4 Mmatrix; \
-			varying mediump vec4 color; \
-			varying mediump vec2 texCoord;\
-			void main(void)  \
-			{ \
-                gl_Position = Pmatrix*Vmatrix*Mmatrix*vec4(myVertex, 1.0);\
-				color = myColor;\
-				texCoord = myUV; \
-			}';
+        attribute highp vec3 myVertex; \
+        attribute highp vec4 myColor; \
+        attribute highp vec2 myUV; \
+        uniform mediump mat4 Pmatrix; \
+        uniform mediump mat4 Vmatrix; \
+        uniform mediump mat4 Mmatrix; \
+        varying mediump vec4 color; \
+        varying mediump vec2 texCoord;\
+        void main(void)  \
+        { \
+            gl_Position = Pmatrix*Vmatrix*Mmatrix*vec4(myVertex, 1.0);\
+            color = myColor;\
+            texCoord = myUV; \
+        }';
 
-    // if (gl_Position.w != 0.0) { \
-    //     gl_Position.x = gl_Position.x / gl_Position.w + 1.0;\
-    //     gl_Position.y = gl_Position.y / gl_Position.w + 1.0;\
-    //     gl_Position.z = gl_Position.z / gl_Position.w + 1.0;\
-    //     }   \
-    //     else    \
-    //     {   \
-    //         gl_Position.x += 1.0;   \
-    //         gl_Position.y += 1.0;   \
-    //         gl_Position.z += 1.0;   \
-    //     }   \
 
     gl.vertexShader = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(gl.vertexShader, vertexShaderSource);
@@ -383,6 +392,44 @@ function scale(m, sx, sy, sz) {
     mulMatrix(m, tm);
 }
 
+// Inverse
+function inverse(m, tx, ty, tz) {
+    console.log(1, m);
+    var tm = m.slice();
+    m = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+    if (tm[0] !== 0)
+        tm[0] = 1 / tm[0];
+    if (tm[5] !== 0)
+        tm[5] = 1 / tm[5];
+    if (tm[10] !== 0)
+        tm[10] = 1 / tm[10];
+    tm[12] = -tx;
+    tm[13] = -ty;
+    tm[14] = -tz;
+    mulMatrix(m, tm);
+    console.log(2, m);
+}
+
+// Shear
+function shearMatrix(m, a) {
+    var tm = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+    if (Math.sin(a) !== 0)
+        tm[4] = Math.cos(a) / Math.sin(a);
+    mulMatrix(m, tm);
+}
+
+// Color
+function ColorToggle() {
+    if (isColor === false) {
+        isColor = true;
+        document.getElementById("colorText").innerHTML = "Color를 넣습니다.";
+    } else {
+        isColor = false;
+        document.getElementById("colorText").innerHTML = "Color를 넣지 않습니다.";
+    }
+    initialiseShaders()
+}
+
 // rotation matrix: X축을 기준으로 - Fan
 function rotateX(m, angle) {
     var rm = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
@@ -505,51 +552,44 @@ function animPause() {
 function trXinc() {
     transX += 0.01;
     document.getElementById("transformText").innerHTML = "Cube를 X 방향으로 +0.1 이동시킵니다.";
-    document.getElementById("webTrX").innerHTML = "transX : " + transX.toFixed(4);
 }
 
 function trXdec() {
     transX -= 0.01;
     document.getElementById("transformText").innerHTML = "Cube를 X 방향으로 -0.1 이동시킵니다.";
-    document.getElementById("webTrX").innerHTML = "transX : " + transX.toFixed(4);
 }
 
 function trYinc() {
     transY += 0.01;
     document.getElementById("transformText").innerHTML = "Cube를 Y 방향으로 +0.1 이동시킵니다.";
-    document.getElementById("webTrY").innerHTML = "transY : " + transY.toFixed(4);
 }
 
 function trYdec() {
     transY -= 0.01;
     document.getElementById("transformText").innerHTML = "Cube를 Y 방향으로 -0.1 이동시킵니다.";
-    document.getElementById("webTrY").innerHTML = "transY : " + transY.toFixed(4);
 }
 
 function trZinc() {
     transZ += 0.01;
     document.getElementById("transformText").innerHTML = "Cube를 Z 방향으로 +0.1 이동시킵니다.";
-    document.getElementById("webTrZ").innerHTML = "transZ : " + transZ.toFixed(4);
 }
 
 function trZdec() {
     transZ -= 0.01;
     document.getElementById("transformText").innerHTML = "Cube를 Z 방향으로 -0.1 이동시킵니다.";
-    document.getElementById("webTrZ").innerHTML = "transZ : " + transZ.toFixed(4);
 }
 
 function moonFar() {
     moonD += 0.1;
     document.getElementById("transformText").innerHTML = "Moon Cube들을 Main Cube에서 멀어지게 합니다.";
-    document.getElementById("moonD").innerHTML = "moonD : " + moonD.toFixed(4);
 }
 
 function moonClose() {
     moonD -= 0.1;
     document.getElementById("transformText").innerHTML = "Moon Cube들을 Main Cube에서 가까워지게 합니다.";
-    document.getElementById("moonD").innerHTML = "moonD : " + moonD.toFixed(4);
 }
 
+// Rotation Toggle
 function revolveTogle() {
     if (revolve === 0) {
         revolve = 1;
@@ -559,6 +599,61 @@ function revolveTogle() {
         revolve = 0;
     }
 
+}
+
+// Inverse Toggle
+function InverseToggle() {
+    if (isInv === false) {
+        isInv = true;
+        document.getElementById("inverseText").innerHTML = "행렬을 역행렬화 합니다.";
+    } else {
+        document.getElementById("inverseText").innerHTML = "행렬을 원래대로 돌립니다.";
+        isInv = false;
+    }
+}
+
+// Shear
+function ShearUp() {
+    shear += 1;
+    if (shear === 0) document.getElementById("shearText").innerHTML = "Shear가 꺼져 있습니다.";
+    else document.getElementById("shearText").innerHTML = "X방향으로 Shear 각도를 1 만큼 높여서 기울입니다.";
+}
+
+function ShearDown() {
+    shear -= 1;
+    if (shear === 0) document.getElementById("shearText").innerHTML = "Shear가 꺼져 있습니다.";
+    else document.getElementById("shearText").innerHTML = "X방향으로 Shear 각도를 -1 만큼 높여서 기울입니다.";
+}
+
+// Scaling
+function scaleUpX() {
+    sx += 0.05;
+    document.getElementById("transformText").innerHTML = "Cube를 X 방향으로 스케일을 0.05만큼 키웁니다.";
+}
+
+function scaleUpY() {
+    sy += 0.05;
+    document.getElementById("transformText").innerHTML = "Cube를 Y 방향으로 스케일을 0.05만큼 키웁니다.";
+}
+
+function scaleUpZ() {
+    sz += 0.05;
+    document.getElementById("transformText").innerHTML = "Cube를 Z 방향으로 스케일을 0.05만큼 키웁니다.";
+}
+
+function scaleDownX() {
+    sx -= 0.05;
+    document.getElementById("transformText").innerHTML = "Cube를 X 방향으로 스케일을 0.05만큼 줄입니다.";
+}
+
+function scaleDownY() {
+    sy -= 0.05;
+    document.getElementById("transformText").innerHTML = "Cube를 Y 방향으로 스케일을 0.05만큼 줄입니다.";
+}
+
+function scaleDownZ() {
+    sz -= 0.05;
+    document.getElementById("transformText").innerHTML = "Cube를 Z 방향으로 스케일을 0.05만큼 줄입니다.";
 }
 
 // Culling Toggle
@@ -881,7 +976,14 @@ function renderScene() {
     idMatrix(mov_matrix);
     translate(mov_matrix, transX, transY, transZ);
     rotateArbAxis(mov_matrix, rotValue, rotAxis);
+    scale(mov_matrix, sx, sy, sz);
+    if (shear !== 0) {
+        shearMatrix(mov_matrix, shear);
+    }
 
+    if (isInv === true) {
+        inverse(mov_matrix, transX, transY, transZ);
+    }
     gl.uniformMatrix4fv(locMmatrix, false, mov_matrix);
     gl.drawArrays(primitive, 0, 36);
 
