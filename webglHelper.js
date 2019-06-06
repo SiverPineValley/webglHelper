@@ -1,4 +1,10 @@
 var gl;
+var primitive;
+var depthE = true;
+var blendE = true;
+var depthS;
+var blendFactor = [0, 0];
+var blendEq;
 
 function testGLError(functionLastCalled) {
     /*
@@ -21,7 +27,11 @@ function initialiseGL(canvas) {
         // webgl혹은 experimental-webgl(베타버전)을 쓸거라는 선언
         // HTML document의 canvas(실제로 그릴 그림)
         gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-
+        primitive = gl.TRIANGLES;
+        depthS = gl.LEQUAL;
+        blendFactor[0] = gl.DST_ALPHA;
+        blendFactor[1] = gl.ZERO;
+        blendEq = gl.FUNC_ADD;
         // 원근법을 설정하기 위해 viewport를 정한다.
         // canvas의 x.start, y.start값과, 폭과 높이, 시작점을 받아온다.
         gl.viewport(0, 0, canvas.width, canvas.height);
@@ -469,6 +479,7 @@ frames = 1;
 moonD = 0.0;
 revolve = 0;
 
+// Transformation Functions
 // 돌아가는 속도
 function animRotate() {
     animRotValue += 0.01;
@@ -546,6 +557,222 @@ function revolveTogle() {
 
 }
 
+// Depth Test Toggle
+function depthToggle() {
+    if (depthE === true) {
+        depthE = false;
+        document.getElementById("Per-fragmentText").innerHTML = "Depth Test를 끕니다.";
+    } else {
+        depthE = true;
+        document.getElementById("Per-fragmentText").innerHTML = "Depth Test를 켭니다.";
+    }
+}
+
+// Depth Test 교체
+function depthChange() {
+    let selected = document.getElementById("depthSelect");
+    let j;
+    for (let i = 0; i < selected.options.length; i++) {
+        if (selected.options[i].selected === true) {
+            j = i;
+            break;
+        }
+    }
+
+    if (selected.options[j].value === 'lequal') {
+        document.getElementById("Per-fragmentText").innerHTML = "들어오는 값이 Depth Buffer 값보다 작거나 같을때만 그립니다.";
+        depthS = gl.LEQUAL;
+    } else if (selected.options[j].value === 'greater') {
+        document.getElementById("Per-fragmentText").innerHTML = "들어오는 값이 Depth Buffer 값보다 클때만 그립니다.";
+        depthS = gl.GREATER;
+    } else if (selected.options[j].value === 'notequal') {
+        document.getElementById("Per-fragmentText").innerHTML = "들어오는 값이 Depth Buffer 값과 같을때만 그립니다.";
+        depthS = gl.NOTEQUAL;
+    } else if (selected.options[j].value === 'gequal') {
+        document.getElementById("Per-fragmentText").innerHTML = "들어오는 값이 Depth Buffer 값보다 크거나 같을때만 그립니다.";
+        depthS = gl.GEQUAL;
+    } else if (selected.options[j].value === 'always') {
+        document.getElementById("Per-fragmentText").innerHTML = "들어오는 값을 항상 그립니다.";
+        depthS = gl.ALWAYS;
+    } else if (selected.options[j].value === 'equal') {
+        document.getElementById("Per-fragmentText").innerHTML = "들어오는 값이 Depth Buffer 값과 같을때만 그립니다.";
+        depthS = gl.EQUAL;
+    } else if (selected.options[j].value === 'less') {
+        document.getElementById("Per-fragmentText").innerHTML = "들어오는 값이 Depth Buffer 값보다 작을때만 그립니다.";
+        depthS = gl.LESS;
+    } else if (selected.options[j].value === 'never') {
+        document.getElementById("Per-fragmentText").innerHTML = "아무것도 그리지 않습니다.";
+        depthS = gl.NEVER;
+    }
+}
+
+// Depth Test 교체
+function depthChange() {
+    let selected = document.getElementById("depthSelect");
+    let j;
+    for (let i = 0; i < selected.options.length; i++) {
+        if (selected.options[i].selected === true) {
+            j = i;
+            break;
+        }
+    }
+
+    if (selected.options[j].value === 'lequal') {
+        document.getElementById("Per-fragmentText").innerHTML = "들어오는 값이 Depth Buffer 값보다 작거나 같을때만 그립니다.";
+        depthS = gl.LEQUAL;
+    } else if (selected.options[j].value === 'greater') {
+        document.getElementById("Per-fragmentText").innerHTML = "들어오는 값이 Depth Buffer 값보다 클때만 그립니다.";
+        depthS = gl.GREATER;
+    } else if (selected.options[j].value === 'notequal') {
+        document.getElementById("Per-fragmentText").innerHTML = "들어오는 값이 Depth Buffer 값과 같을때만 그립니다.";
+        depthS = gl.NOTEQUAL;
+    } else if (selected.options[j].value === 'gequal') {
+        document.getElementById("Per-fragmentText").innerHTML = "들어오는 값이 Depth Buffer 값보다 크거나 같을때만 그립니다.";
+        depthS = gl.GEQUAL;
+    } else if (selected.options[j].value === 'always') {
+        document.getElementById("Per-fragmentText").innerHTML = "들어오는 값을 항상 그립니다.";
+        depthS = gl.ALWAYS;
+    } else if (selected.options[j].value === 'equal') {
+        document.getElementById("Per-fragmentText").innerHTML = "들어오는 값이 Depth Buffer 값과 같을때만 그립니다.";
+        depthS = gl.EQUAL;
+    } else if (selected.options[j].value === 'less') {
+        document.getElementById("Per-fragmentText").innerHTML = "들어오는 값이 Depth Buffer 값보다 작을때만 그립니다.";
+        depthS = gl.LESS;
+    } else if (selected.options[j].value === 'never') {
+        document.getElementById("Per-fragmentText").innerHTML = "아무것도 그리지 않습니다.";
+        depthS = gl.NEVER;
+    }
+}
+
+// Blending Toggle
+function blendToggle() {
+    if (blendE === true) {
+        blendE = false;
+        document.getElementById("Per-fragmentText").innerHTML = "Blending을 끕니다.";
+    } else {
+        blendE = true;
+        document.getElementById("Per-fragmentText").innerHTML = "Blending을 켭니다.";
+    }
+}
+
+// Blending 교체
+function BlendChange(num) {
+    let selectname, textname;
+    if (num === 0) {
+        selectname = 'blendF1';
+        textname = 'BlendText0';
+    } else if (num === 1) {
+        selectname = 'blendF2';
+        textname = 'BlendText1';
+    } else {
+        selectname = 'blendE';
+        textname = 'BlendText2';
+    }
+
+    let selected = document.getElementById(selectname);
+    let j;
+    for (let i = 0; i < selected.options.length; i++) {
+        if (selected.options[i].selected === true) {
+            j = i;
+            break;
+        }
+    }
+    if (num === 2) {
+        if (selected.options[j].value === 'func_add') {
+            document.getElementById(textname).innerHTML = "Source + Destination.";
+            blendEq = gl.FUNC_ADD;
+        } else if (selected.options[j].value === 'func_subtract') {
+            document.getElementById(textname).innerHTML = "Source - Destination.";
+            blendEq = gl.FUNC_SUBTRACT;
+        } else if (selected.options[j].value === 'func_reverse_subtract') {
+            document.getElementById(textname).innerHTML = "Destination - Source.";
+            blendEq = gl.FUNC_REVERSE_SUBTRACT;
+        }
+    } else {
+        if (selected.options[j].value === 'zero') {
+            document.getElementById(textname).innerHTML = "모든 색에 0을 곱합니다.";
+            blendFactor[num] = gl.ZERO;
+        } else if (selected.options[j].value === 'one') {
+            document.getElementById(textname).innerHTML = "모든 색에 1을 곱합니다.";
+            blendFactor[num] = gl.ONE;
+        } else if (selected.options[j].value === 'src_color') {
+            document.getElementById(textname).innerHTML = "Source Color에 색들을 곱합니다.";
+            blendFactor[num] = gl.SRC_COLOR;
+        } else if (selected.options[j].value === 'one_minus_src_color') {
+            document.getElementById(textname).innerHTML = "각 색에 1에 Source Color을 뺀 값을 곱합니다.";
+            blendFactor[num] = gl.ONE_MINUS_SRC_COLOR;
+        } else if (selected.options[j].value === 'dst_color') {
+            document.getElementById(textname).innerHTML = "Destination Color에 색들을 곱합니다.";
+            blendFactor[num] = gl.DST_COLOR;
+        } else if (selected.options[j].value === 'one_minus_dst_color') {
+            document.getElementById(textname).innerHTML = "각 색에 1에 Destination Color을 뺀 값을 곱합니다.";
+            blendFactor[num] = gl.ONE_MINUS_DST_COLOR;
+        } else if (selected.options[j].value === 'src_alpha') {
+            document.getElementById(textname).innerHTML = "Source Alpha Color에 모든 색들을 곱합니다.";
+            blendFactor[num] = gl.SRC_ALPHA;
+        } else if (selected.options[j].value === 'one_minus_src_aplha') {
+            document.getElementById(textname).innerHTML = "각 색에 1에 Source Alpha Color을 뺀 값을 곱합니다.";
+            blendFactor[num] = gl.ONE_MINUS_SRC_ALPHA;
+        } else if (selected.options[j].value === 'dst_alpha') {
+            document.getElementById(textname).innerHTML = "Destination Alpha Color에 모든 색들을 곱합니다.";
+            blendFactor[num] = gl.DST_ALPHA;
+        } else if (selected.options[j].value === 'one_minus_dst_alpha') {
+            document.getElementById(textname).innerHTML = "각 색에 1에 Destination Alpha Color을 뺀 값을 곱합니다.";
+            blendFactor[num] = gl.ONE_MINUS_DST_ALPHA;
+        } else if (selected.options[j].value === 'constant_color') {
+            document.getElementById(textname).innerHTML = "일정한 색을 모든 색에 곱합니다.";
+            blendFactor[num] = gl.CONSTANT_COLOR;
+        } else if (selected.options[j].value === 'one_minus_constant_color') {
+            document.getElementById(textname).innerHTML = "각 색에 1에 일정한 색을 뺀 값을 곱합니다.";
+            blendFactor[num] = gl.ONE_MINUS_CONSTANT_COLOR;
+        } else if (selected.options[j].value === 'constant_alpha') {
+            document.getElementById(textname).innerHTML = "일정한 알파 색을 모든 색에 곱합니다.";
+            blendFactor[num] = gl.CONSTANT_ALPHA;
+        } else if (selected.options[j].value === 'one_minus_constant_alpha') {
+            document.getElementById(textname).innerHTML = "각 색에 1에 일정한 알파 색을 뺀 값을 곱합니다.";
+            blendFactor[num] = gl.ONE_MINUS_CONSTANT_ALPHA;
+        } else if (selected.options[j].value === 'src_alpha_saturate') {
+            document.getElementById(textname).innerHTML = "소스 알파 값 또는 1의 값에서 대상 알파 값 중 작은 값으로 RGB 색상을 곱합니다. 알파 값에 1을 곱합니다.";
+            blendFactor[num] = gl.SRC_ALPHA_SATURATE;
+        }
+    }
+}
+
+// Primitive 교체
+function primitiveChange() {
+    let selected = document.getElementById("primitiveSelect");
+    let j;
+    for (let i = 0; i < selected.options.length; i++) {
+        if (selected.options[i].selected === true) {
+            j = i;
+            break;
+        }
+    }
+
+    if (selected.options[j].value === 'triangles') {
+        document.getElementById("PrimitiveAssemblyText").innerHTML = "Primitive들을 3개의 vertex들로 이루어진 삼각형으로 그립니다.";
+        primitive = gl.TRIANGLES;
+    } else if (selected.options[j].value === 'triangles_strip') {
+        document.getElementById("PrimitiveAssemblyText").innerHTML = "연속된 삼각형들이 한 면을 공유하면서 그려집니다..";
+        primitive = gl.TRIANGLE_STRIP;
+    } else if (selected.options[j].value === 'triangles_fan') {
+        document.getElementById("PrimitiveAssemblyText").innerHTML = "연속된 삼각형들을 한 vertex를 공유하면서 회전하여 그려집니다.";
+        primitive = gl.TRIANGLE_FAN;
+    } else if (selected.options[j].value === 'lines') {
+        document.getElementById("PrimitiveAssemblyText").innerHTML = "Primitive들을 2개의 vertex들로 이루어진 선으로 그립니다.";
+        primitive = gl.LINES;
+    } else if (selected.options[j].value === 'lines_strip') {
+        document.getElementById("PrimitiveAssemblyText").innerHTML = "직선을 다음 vertex에 그립니다.";
+        primitive = gl.LINE_STRIP;
+    } else if (selected.options[j].value === 'lines_loop') {
+        document.getElementById("PrimitiveAssemblyText").innerHTML = "직선을 다음 vertex에 그리고, 마지막 vertex를 처음 vertex와 연결합니다.";
+        primitive = gl.LINE_LOOP;
+    } else {
+        document.getElementById("PrimitiveAssemblyText").innerHTML = "Primitive들을 점 하나로 그립니다.";
+        primitive = gl.POINTS;
+    }
+}
+
 // 화면에 그리는 명령
 function renderScene() {
 
@@ -605,9 +832,12 @@ function renderScene() {
     // DEPTH Test를 사용 -> z-Buffer를 킨다. 이걸 끄면, 순서대로 그리게 된다.
     // 위에서 정한 영역만 보여지게.
     // g Buffer가 50% 투명하다를 기준으로, 그리고 안그리고를 결정하므로, 결과가 이상하게 나타낸다.
-    gl.enable(gl.DEPTH_TEST);
-    // 카메라부터 거리가 작은 값만, 같으면 나중에 그린것만 그린다. z-Buffer가 Update되면서 가까운것만 그린다.
-    gl.depthFunc(gl.LEQUAL);
+    if (depthE === true) {
+        // 카메라부터 거리가 작은 값만, 같으면 나중에 그린것만 그린다. z-Buffer가 Update되면서 가까운것만 그린다.
+        gl.enable(gl.DEPTH_TEST);
+        gl.depthFunc(depthS);
+    } else
+        gl.disable(gl.DEPTH_TEST);
 
     // Culling이란, 안그릴 곳을 정해주는 것을 의미한다.
     // Culling을 키면 뒷면 그리는 것을 아예 하지 않는다.
@@ -615,14 +845,19 @@ function renderScene() {
     // gl.cullFace(gl.FRONT);
 
     // 이미 그려져 있는 것과, 새로 그려질 것들의 관계
-    gl.enable(gl.BLEND);
+    if (blendE === true) {
+        gl.enable(gl.BLEND);
+    } else {
+        gl.disable(gl.BLEND);
+    }
+
     // Source가 Over되게 그려짐. Dest가 이미 있는거, Source가 그려질것.
     // 위 둘을 섞는 과정이 Blending
     // ONE은 원색만 보여줌.
     // ZERO는 색을 지워버림.
-    gl.blendFunc(gl.DST_ALPHA, gl.ZERO);
     // 그 둘을 더함 (ADD, SUBTRACT, REVERSE_SUBTRACT)
-    gl.blendEquation(gl.FUNC_ADD);
+    gl.blendFunc(blendFactor[0], blendFactor[1]);
+    gl.blendEquation(blendEq);
 
     // 배경색을 지우고 바꿔라.
     // HTML 배경과, 캔버스 배경, Cube 색에 따라 육면체에 보여지는 색이 달라진다.
@@ -637,7 +872,7 @@ function renderScene() {
     rotateArbAxis(mov_matrix, rotValue, rotAxis);
 
     gl.uniformMatrix4fv(locMmatrix, false, mov_matrix);
-    gl.drawArrays(gl.TRIANGLES, 0, 36);
+    gl.drawArrays(primitive, 0, 36);
 
     function drawSmallCube(m, x, y, z, s, rs, rotCon) {
         if (revolve === 0) {
@@ -657,7 +892,7 @@ function renderScene() {
             scale(m, s, s, s);
         }
         gl.uniformMatrix4fv(locMmatrix, false, m);
-        gl.drawArrays(gl.TRIANGLES, 0, 36);
+        gl.drawArrays(primitive, 0, 36);
     }
 
     // 작은 큐브 1
@@ -696,7 +931,7 @@ function renderScene() {
     /*
         Primitive들을 그릴 때 사용한다.
     */
-    gl.drawArrays(gl.TRIANGLES, 0, 36);
+    gl.drawArrays(primitive, 0, 36);
     document.getElementById("matrix0").innerHTML = mov_matrix[0].toFixed(4);
     document.getElementById("matrix1").innerHTML = mov_matrix[1].toFixed(4);
     document.getElementById("matrix2").innerHTML = mov_matrix[2].toFixed(4);

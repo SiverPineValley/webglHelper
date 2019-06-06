@@ -6,8 +6,8 @@
     <title>webglHelper</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
 
-    <script type="text/javascript" src="webglHelper.js">
-    </script>
+    <script type="text/javascript" src="webglHelper.js"></script>
+    <script type="text/javascript" src="actions.js"></script>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -27,8 +27,14 @@
 
     <!-- Tabs -->
     <ul class="nav nav-tabs" style="margin: 0 auto;">
+        <li class="nav-item" style="margin: 0 auto;" onclick="tabchange(event, 'Primitive-assembly')">
+            <a id="Primitive-assembly-link" class="nav-link" data-toggle="tab" href="#Primitive-assembly">Primitive Assembly</a>
+        </li>
+        <li class="nav-item" style="margin: 0 auto;" onclick="tabchange(event, 'Per-fragment')">
+            <a id="Per-fragment-link" class="nav-link" data-toggle="tab" href="#Per-fragment">Per-Fragment Operation</a>
+        </li>
         <li class="nav-item" style="margin: 0 auto;" onclick="tabchange(event, 'shading')">
-            <a id="shading-link" class="nav-link active" data-toggle="tab" href="#shading">Shading</a>
+            <a id="shading-link" class="nav-link" data-toggle="tab" href="#shading">Shading</a>
         </li>
         <li class="nav-item" style="margin: 0 auto;" onclick="tabchange(event, 'transform')">
             <a id="transform-link" class="nav-link active" data-toggle="tab" href="#transform">Transform</a>
@@ -56,11 +62,94 @@
     <!-- Tab Contents -->
     <br>
     <div id="myTabContent" class="tab-content">
-        <div class="tab-pane fade show active" id="shading">
+        <!-- Primitive Assembly -->
+        <div class="tab-pane fade" id="Primitive-assembly">
+            <div class="col-5" style="margin: 0 auto;">
+                <p id="PrimitiveAssemblyText">이곳에서는 Primitive와 관련된 기능들을 설명합니다.</p>
+                <div class="col-5" style="margin: 0 auto;">
+                    <p class="bs-component">
+                        <select class="form-control" id="primitiveSelect" onclick="primitiveChange()">
+                            <option value="triangles">GL_TRIANGLES</option>
+                            <option value="triangles_strip">GL_TRIANGLES_STRIP</option>
+                            <option value="triangles_fan">GL_TRIANGLES_FAN</option>
+                            <option value="lines">GL_LINES</option>
+                            <option value="lines_strip">GL_LINES_STRIP</option>
+                            <option value="lines_loop">GL_LINES_LOOP</option>
+                            <option value="points">GL_POINTS</option>
+                        </select>
+                    </p>
+                </div>
+            </div>
         </div>
+        <!-- Per-fragment -->
+        <div class="tab-pane fade" id="Per-fragment">
+            <div class="col-5" style="margin: 0 auto;">
+                <p id="Per-fragmentText">이곳에서는 Per-fragment Operation과 관련된 기능들을 설명합니다.</p>
+                <h2 id="nav-tabs">Depth Test</h2>
+                <button type="button" class="btn btn-primary" onclick="depthToggle()">Depth Test Toggle</button><br><br>
+                <select class="form-control" id="depthSelect" onclick="depthChange()">
+                        <option value="lequal">LEQUAL</option>
+                        <option value="greater">GREATER</option>
+                        <option value="notequal">NOTEQUAL</option>
+                        <option value="gequal">GEQUAL</option>
+                        <option value="always">ALWAYS</option>
+                        <option value="equal">EQUAL</option>
+                        <option value="less">LESS</option>
+                        <option value="never">NEVER</option>
+                </select><br><br>
+                <h2 id="nav-tabs">Blending</h2>
+                <button type="button" class="btn btn-primary" onclick="blendToggle()">Blending Toggle</button><br><br>
+                <p id="BlendText0">Factor 1</p>
+                <select class="form-control" id="blendF1" onclick="BlendChange(0)">
+                        <option value="zero">ZERO</option>
+                        <option value="one">ONE</option>
+                        <option value="src_color">SRC_COLOR</option>
+                        <option value="one_minus_src_color">ONE_MINUS_SRC_COLOR</option>
+                        <option value="dst_color">DST_COLOR</option>
+                        <option value="one_minus_dst_color">ONE_MINUS_DST_COLOR</option>
+                        <option value="src_alpha">SRC_ALPHA</option>
+                        <option value="one_minus_src_aplha">ONE_MINUS_SRC_ALPHA</option>
+                        <option value="dst_alpha">DST_ALPHA</option>
+                        <option value="one_minus_dst_alpha">ONE_MINUS_DST_ALPHA</option>
+                        <option value="constant_color">CONSTANT_COLOR</option>
+                        <option value="one_minus_constant_color">ONE_MINUS_CONSTANT_COLOR</option>
+                        <option value="constant_alpha">CONSTANT_ALPHA</option>
+                        <option value="one_minus_constant_alpha">ONE_MINUS_CONSTANT_ALPHA</option>
+                        <option value="src_alpha_saturate">SRC_ALPHA_SATURATE</option>
+                </select><br><br>
+                <p id="BlendText1">Factor 2</p>
+                <select class="form-control" id="blendF2" onclick="BlendChange(1)">
+                        <option value="zero">ZERO</option>
+                        <option value="one">ONE</option>
+                        <option value="src_color">SRC_COLOR</option>
+                        <option value="one_minus_src_color">ONE_MINUS_SRC_COLOR</option>
+                        <option value="dst_color">DST_COLOR</option>
+                        <option value="one_minus_dst_color">ONE_MINUS_DST_COLOR</option>
+                        <option value="src_alpha">SRC_ALPHA</option>
+                        <option value="one_minus_src_aplha">ONE_MINUS_SRC_ALPHA</option>
+                        <option value="dst_alpha">DST_ALPHA</option>
+                        <option value="one_minus_dst_alpha">ONE_MINUS_DST_ALPHA</option>
+                        <option value="constant_color">CONSTANT_COLOR</option>
+                        <option value="one_minus_constant_color">ONE_MINUS_CONSTANT_COLOR</option>
+                        <option value="constant_alpha">CONSTANT_ALPHA</option>
+                        <option value="one_minus_constant_alpha">ONE_MINUS_CONSTANT_ALPHA</option>
+                        <option value="src_alpha_saturate">SRC_ALPHA_SATURATE</option>
+                </select><br><br>
+                <p id="BlendText2">Equation</p>
+                <select class="form-control" id="blendE" onclick="BlendChange(2)">
+                        <option value="func_add">FUNC_ADD</option>
+                        <option value="func_subtract">FUNC_SUBTRACT</option>
+                        <option value="func_reverse_subtract">FUNC_REVERSE_SUBTRACT</option>
+                </select><br><br>
+            </div>
+        </div>
+        <!-- Shading -->
+        <div class="tab-pane fade" id="shading">
+        </div>
+        <!-- Transform -->
         <div class="tab-pane fade show active" id="transform">
             <div class="col-5" style="margin: 0 auto;">
-                <p id="transformText"></p>
+                <p id="transformText">이곳에서는 Transformation와 관련된 기능들을 설명합니다.</p>
             </div>
             <div class="col-5" style="margin: 0 auto;">
                 <p class="bs-component">
@@ -102,30 +191,14 @@
             </table>
             <br>
         </div>
+        <!-- Texture -->
         <div class="tab-pane fade" id="texture">
-            <p>Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee. Qui photo booth letterpress,
-                commodo enim craft beer mlkshk aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit.</p>
+            <div class="col-2" style="margin: 0 auto;">
+                <input type="file" class="form-control-file" id="imageFile" aria-describedby="fileHelp" ref="image"><br>
+                <input type="button" value="Upload" onclick="Submit()" />
+            </div>
         </div>
     </div>
-
-    <script>
-        function tabchange(evt, content) {
-            // 기존 Content 안보이게 하기
-            var i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tab-pane");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].className = tabcontent[i].className.replace(" show active", "");
-            }
-            // 기존 Link 안보이게 하기
-            tablinks = document.getElementsByClassName("nav-link");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].className = tablinks[i].className.replace(" active", "");
-            }
-            // Link 및 Content 보이게 하기
-            document.getElementById(content).className += " show active";
-            document.getElementById(content + "-link").className += " active";
-        }
-    </script>
 
 </body>
 
