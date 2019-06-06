@@ -2,9 +2,12 @@ var gl;
 var primitive;
 var depthE = true;
 var blendE = true;
+var cullE = false;
+var dithE = false;
 var depthS;
 var blendFactor = [0, 0];
 var blendEq;
+var cullF;
 
 function testGLError(functionLastCalled) {
     /*
@@ -32,6 +35,7 @@ function initialiseGL(canvas) {
         blendFactor[0] = gl.DST_ALPHA;
         blendFactor[1] = gl.ZERO;
         blendEq = gl.FUNC_ADD;
+        cullF = gl.FRONT;
         // 원근법을 설정하기 위해 viewport를 정한다.
         // canvas의 x.start, y.start값과, 폭과 높이, 시작점을 받아온다.
         gl.viewport(0, 0, canvas.width, canvas.height);
@@ -557,6 +561,31 @@ function revolveTogle() {
 
 }
 
+// Culling Toggle
+function cullingToggle() {
+    if (cullE === true) {
+        cullE = false;
+        document.getElementById("cullingText").innerHTML = "Culling을 끕니다.";
+    } else {
+        cullE = true;
+        document.getElementById("cullingText").innerHTML = "Culling을 켭니다.";
+    }
+}
+
+// Culling Change
+function cullingFaceChange(text) {
+    if (text === 'front') {
+        cullF = gl.FRONT;
+        document.getElementById("cullingText").innerHTML = "앞면을 그리지 않는다.";
+    } else if (text === 'back') {
+        cullF = gl.BACK;
+        document.getElementById("cullingText").innerHTML = "뒷면을 그리지 않는다.";
+    } else {
+        cullF = gl.FRONT_AND_BACK;
+        document.getElementById("cullingText").innerHTML = "앞면과 뒷면을 모두 그리지 않는다.";
+    }
+}
+
 // Depth Test Toggle
 function depthToggle() {
     if (depthE === true) {
@@ -606,41 +635,14 @@ function depthChange() {
     }
 }
 
-// Depth Test 교체
-function depthChange() {
-    let selected = document.getElementById("depthSelect");
-    let j;
-    for (let i = 0; i < selected.options.length; i++) {
-        if (selected.options[i].selected === true) {
-            j = i;
-            break;
-        }
-    }
-
-    if (selected.options[j].value === 'lequal') {
-        document.getElementById("Per-fragmentText").innerHTML = "들어오는 값이 Depth Buffer 값보다 작거나 같을때만 그립니다.";
-        depthS = gl.LEQUAL;
-    } else if (selected.options[j].value === 'greater') {
-        document.getElementById("Per-fragmentText").innerHTML = "들어오는 값이 Depth Buffer 값보다 클때만 그립니다.";
-        depthS = gl.GREATER;
-    } else if (selected.options[j].value === 'notequal') {
-        document.getElementById("Per-fragmentText").innerHTML = "들어오는 값이 Depth Buffer 값과 같을때만 그립니다.";
-        depthS = gl.NOTEQUAL;
-    } else if (selected.options[j].value === 'gequal') {
-        document.getElementById("Per-fragmentText").innerHTML = "들어오는 값이 Depth Buffer 값보다 크거나 같을때만 그립니다.";
-        depthS = gl.GEQUAL;
-    } else if (selected.options[j].value === 'always') {
-        document.getElementById("Per-fragmentText").innerHTML = "들어오는 값을 항상 그립니다.";
-        depthS = gl.ALWAYS;
-    } else if (selected.options[j].value === 'equal') {
-        document.getElementById("Per-fragmentText").innerHTML = "들어오는 값이 Depth Buffer 값과 같을때만 그립니다.";
-        depthS = gl.EQUAL;
-    } else if (selected.options[j].value === 'less') {
-        document.getElementById("Per-fragmentText").innerHTML = "들어오는 값이 Depth Buffer 값보다 작을때만 그립니다.";
-        depthS = gl.LESS;
-    } else if (selected.options[j].value === 'never') {
-        document.getElementById("Per-fragmentText").innerHTML = "아무것도 그리지 않습니다.";
-        depthS = gl.NEVER;
+// Dithering Toggle
+function ditheringToggle() {
+    if (dithE === true) {
+        dithE = false;
+        document.getElementById("DitheringText").innerHTML = "Dithering을 끕니다.";
+    } else {
+        dithE = true;
+        document.getElementById("DitheringText").innerHTML = "Dithering을 켭니다.";
     }
 }
 
@@ -841,8 +843,12 @@ function renderScene() {
 
     // Culling이란, 안그릴 곳을 정해주는 것을 의미한다.
     // Culling을 키면 뒷면 그리는 것을 아예 하지 않는다.
-    gl.enable(gl.CULL_FACE);
-    // gl.cullFace(gl.FRONT);
+    if (cullE === true) {
+        gl.enable(gl.CULL_FACE);
+    } else {
+        gl.disable(gl.CULL_FACE);
+    }
+    gl.cullFace(cullF);
 
     // 이미 그려져 있는 것과, 새로 그려질 것들의 관계
     if (blendE === true) {
@@ -851,6 +857,11 @@ function renderScene() {
         gl.disable(gl.BLEND);
     }
 
+    if (dithE === true) {
+        gl.enable(gl.DITHER);
+    } else {
+        gl.disable(gl.DITHER);
+    }
     // Source가 Over되게 그려짐. Dest가 이미 있는거, Source가 그려질것.
     // 위 둘을 섞는 과정이 Blending
     // ONE은 원색만 보여줌.

@@ -6,6 +6,8 @@
     <title>webglHelper</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
 
+    <!-- webGLHelper.js에서는 webgl 관련 코드들을 모아놨고, actions.js에서는 HTML내 동작에 관한 코드를 넣었다. -->
+    <!-- 그 외에 Bootstrap을 사용하기 위해 관련 파일들을 불러왔다. -->
     <script type="text/javascript" src="webglHelper.js"></script>
     <script type="text/javascript" src="actions.js"></script>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -16,8 +18,8 @@
 </head>
 
 <body bgcolor="white" onload="main()">
-
-    <div class="card text-white bg-primary mb-3" style="max-width: 30%; margin: 0 auto;">
+    <!-- 각 기능별로 어떻게 동작이 되는지를 보여줄 Canvas -->
+    <div class="card text-white bg-primary mb-3" style="max-width: 500px; margin: 0 auto;">
         <div class="card-header">WebGL Canvas</div>
         <div class="card-body" style="margin: 0 auto;">
             <canvas id="glcanvas" style="border: none; margin: 0 auto;" width="400" height="400"></canvas>
@@ -25,7 +27,8 @@
     </div>
     <br>
 
-    <!-- Tabs -->
+    <!-- Tabs 
+        각 기능별로 구분하여 보여준다. -->
     <ul class="nav nav-tabs" style="margin: 0 auto;">
         <li class="nav-item" style="margin: 0 auto;" onclick="tabchange(event, 'Primitive-assembly')">
             <a id="Primitive-assembly-link" class="nav-link" data-toggle="tab" href="#Primitive-assembly">Primitive Assembly</a>
@@ -42,22 +45,6 @@
         <li class="nav-item" style="margin: 0 auto;" onclick="tabchange(event, 'texture')">
             <a id="texture-link" class="nav-link" data-toggle="tab" href="#texture">Texture</a>
         </li>
-        <!-- <li class="nav-item" style="margin: 0 auto;">
-            <a class="nav-link" data-toggle="tab" href="#profile">Profile</a>
-        </li>
-        <li class="nav-item" style="margin: 0 auto;">
-            <a class="nav-link disabled" href="#">Disabled</a>
-        </li> -->
-        <!-- <li class="nav-item dropdown" style="margin: 0 auto;">
-            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
-            <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 42px, 0px);">
-                <a class="dropdown-item" href="#">Action</a>
-                <a class="dropdown-item" href="#">Another action</a>
-                <a class="dropdown-item" href="#">Something else here</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#">Separated link</a>
-            </div>
-        </li> -->
     </ul>
     <!-- Tab Contents -->
     <br>
@@ -141,6 +128,15 @@
                         <option value="func_subtract">FUNC_SUBTRACT</option>
                         <option value="func_reverse_subtract">FUNC_REVERSE_SUBTRACT</option>
                 </select><br><br>
+                <h2 id="nav-tabs">Culling</h2>
+                <p id="cullingText">Culling이 꺼져 있습니다.</p>
+                <button type="button" class="btn btn-primary" onclick="cullingToggle()">Culling Toggle</button><br><br>
+                <button type="button" class="btn btn-primary" onclick="cullingFaceChange('front')">Front</button>
+                <button type="button" class="btn btn-primary" onclick="cullingFaceChange('back')">Back</button>
+                <button type="button" class="btn btn-primary" onclick="cullingFaceChange('front-and-back')">Front and Back</button><br><br>
+                <h2 id="nav-tabs">Dithering</h2>
+                <p id="DitheringText">Dithering이 꺼져 있습니다.</p>
+                <button type="button" class="btn btn-primary" onclick="ditheringToggle()">Dithering Toggle</button><br><br>
             </div>
         </div>
         <!-- Shading -->
