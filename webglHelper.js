@@ -15,6 +15,8 @@ var blendEq;
 var cullF;
 var shear = 0;
 var isColor = false;
+var cameraD = 4;
+var isTexture = true;
 
 function testGLError(functionLastCalled) {
     /*
@@ -155,7 +157,7 @@ function initialiseShaders() {
 
     var fragmentShaderSource;
     // Fragment Shader가 Vertex Shader에서 Attribute로 color를 받고, frag color에 사용.
-    if (isColor === true) {
+    if (isColor === true && isTexture === true) {
         fragmentShaderSource = '\
         varying mediump vec4 color; \
         varying mediump vec2 texCoord;\
@@ -166,7 +168,18 @@ function initialiseShaders() {
             gl_FragColor = 0.5 * color + 0.5 * texture2D(sampler2d, texCoord); \
             gl_FragColor.a = 1.0; \
         }';
-    } else {
+    } else if (isColor === true && isTexture === false) {
+        fragmentShaderSource = '\
+        varying mediump vec4 color; \
+        varying mediump vec2 texCoord;\
+        uniform sampler2D sampler2d; \
+        void main(void) \
+        { \
+            /* Color Collection */\
+            gl_FragColor = 0.5 * color + 0.5; \
+            gl_FragColor.a = 1.0; \
+        }';
+    } else if (isColor === false && isTexture === true) {
         fragmentShaderSource = '\
         varying mediump vec4 color; \
         varying mediump vec2 texCoord;\
@@ -175,6 +188,16 @@ function initialiseShaders() {
         { \
             /* Color Collection */\
             gl_FragColor = texture2D(sampler2d, texCoord); \
+            gl_FragColor.a = 1.0; \
+        }';
+    } else if (isColor === false && isTexture === false) {
+        fragmentShaderSource = '\
+        varying mediump vec4 color; \
+        varying mediump vec2 texCoord;\
+        uniform sampler2D sampler2d; \
+        void main(void) \
+        { \
+            /* Color Collection */\
             gl_FragColor.a = 1.0; \
         }';
     }
@@ -199,19 +222,28 @@ function initialiseShaders() {
     // myVertex attribute 사용, myColor attribute 사용
     // varying으로 color 선언 후, mycolor를 color에 넣는다. 
     var vertexShaderSource = '\
+        attribute highp vec3 aVertexNormal; \
         attribute highp vec3 myVertex; \
         attribute highp vec4 myColor; \
         attribute highp vec2 myUV; \
+        uniform highp mat4 uNormalMatrix; \
         uniform mediump mat4 Pmatrix; \
         uniform mediump mat4 Vmatrix; \
         uniform mediump mat4 Mmatrix; \
         varying mediump vec4 color; \
         varying mediump vec2 texCoord;\
+        varying highp vec3 vLighting; \
         void main(void)  \
         { \
             gl_Position = Pmatrix*Vmatrix*Mmatrix*vec4(myVertex, 1.0);\
             color = myColor;\
             texCoord = myUV; \
+            highp vec3 ambientLight = vec3(0.6, 0.6, 0.6); \
+            highp vec3 directionalLightColor = vec3(0.5, 0.5, 0.75); \
+            highp vec3 directionalVector = vec3(0.85, 0.8, 0.75); \
+            highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0); \
+            highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0); \
+            vLighting = ambientLight + (directionalLightColor * directional); \
         }';
 
 
@@ -279,7 +311,7 @@ var view_matrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 // translating z
 
 // 카메라를 2만큼 뒤로 뺀다. (V)
-view_matrix[14] = view_matrix[14] - 4;
+view_matrix[14] = view_matrix[14] - cameraD;
 
 // Math Functions
 /**
@@ -445,6 +477,18 @@ function ColorToggle() {
     } else {
         isColor = false;
         document.getElementById("colorText").innerHTML = "Color를 넣지 않습니다.";
+    }
+    initialiseShaders()
+}
+
+// Texture
+function TextureToggle() {
+    if (isTexture === false) {
+        isTexture = true;
+        document.getElementById("colorText").innerHTML = "Texture를 넣었습니다.";
+    } else {
+        isTexture = false;
+        document.getElementById("colorText").innerHTML = "Texture를 넣지 않습니다.";
     }
     initialiseShaders()
 }
@@ -889,9 +933,22 @@ function primitiveChange() {
     }
 }
 
+// Camera 멀게
+function CameraFar() {
+    cameraD += 1;
+    view_matrix[14] -= 1;
+    document.getElementById("cameraText").innerHTML = "Camera 위치: " + cameraD;
+}
+
+// Camera 가깝게
+function CameraNear() {
+    cameraD -= 1;
+    view_matrix[14] += 1;
+    document.getElementById("cameraText").innerHTML = "Camera 위치: " + cameraD;
+}
+
 // 화면에 그리는 명령
 function renderScene() {
-
     //console.log("Frame "+frames+"\n");
     frames += 1;
     rotAxis = [1, 1, 0];

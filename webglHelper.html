@@ -210,13 +210,18 @@
                 <h2 id="nav-tabs">Color</h2>
                 <p id="colorText">Color를 넣지 않았습니다.</p>
                 <button type="button" class="btn btn-primary" onclick="ColorToggle()">Color Toggle</button><br><br>
+                <h2 id="nav-tabs">Camera</h2>
+                <p id="cameraText">Camera 위치: 4</p>
+                <button type="button" class="btn btn-primary" onclick="CameraFar()">Camera Far</button><br><br>
+                <button type="button" class="btn btn-primary" onclick="CameraNear()">Camera Near</button><br><br>
             </div>
         </div>
         <!-- Texture -->
         <div class="tab-pane fade" id="texture">
             <div class="col-2" style="margin: 0 auto;">
-                <input type="file" class="form-control-file" id="imageFile" aria-describedby="fileHelp" ref="image"><br>
-                <input type="button" value="Upload" onclick="Submit()" />
+                <h2 id="nav-tabs">Texture</h2>
+                <p id="colorText">Texture를 넣었습니다.</p>
+                <button type="button" class="btn btn-primary" onclick="TextureToggle()">Texture Toggle</button><br><br>
             </div>
         </div>
     </div>
