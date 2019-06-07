@@ -1,3 +1,4 @@
+// (CC-NC-BY) 박종인 2019
 var gl;
 var primitive;
 var sx = 1.0,
@@ -280,102 +281,96 @@ var view_matrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 // 카메라를 2만큼 뒤로 뺀다. (V)
 view_matrix[14] = view_matrix[14] - 4;
 
-// identity Matrix
-function idMatrix(m) {
-    m[0] = 1;
-    m[1] = 0;
-    m[2] = 0;
-    m[3] = 0;
-    m[4] = 0;
-    m[5] = 1;
-    m[6] = 0;
-    m[7] = 0;
-    m[8] = 0;
-    m[9] = 0;
-    m[10] = 1;
-    m[11] = 0;
-    m[12] = 0;
-    m[13] = 0;
-    m[14] = 0;
-    m[15] = 1;
+// Math Functions
+/**
+ * gl-matrix Function - Identity Matrix
+ * Set a mat4 to the identity matrix
+ *
+ * @param {mat4} out the receiving matrix
+ * @returns {mat4} out
+ */
+
+function identity$3(out) {
+    out[0] = 1;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[5] = 1;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = 0;
+    out[9] = 0;
+    out[10] = 1;
+    out[11] = 0;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = 0;
+    out[15] = 1;
+    return out;
 }
 
-// r <- m * k
-function mulStoreMatrix(r, m, k) {
-    m0 = m[0];
-    m1 = m[1];
-    m2 = m[2];
-    m3 = m[3];
-    m4 = m[4];
-    m5 = m[5];
-    m6 = m[6];
-    m7 = m[7];
-    m8 = m[8];
-    m9 = m[9];
-    m10 = m[10];
-    m11 = m[11];
-    m12 = m[12];
-    m13 = m[13];
-    m14 = m[14];
-    m15 = m[15];
-    k0 = k[0];
-    k1 = k[1];
-    k2 = k[2];
-    k3 = k[3];
-    k4 = k[4];
-    k5 = k[5];
-    k6 = k[6];
-    k7 = k[7];
-    k8 = k[8];
-    k9 = k[9];
-    k10 = k[10];
-    k11 = k[11];
-    k12 = k[12];
-    k13 = k[13];
-    k14 = k[14];
-    k15 = k[15];
+/**
+ * gl-matrix Function - r <- m * k
+ * Multiplies two mat4s
+ *
+ * @param {mat4} out the receiving matrix
+ * @param {mat4} a the first operand
+ * @param {mat4} b the second operand
+ * @returns {mat4} out
+ */
 
-    a0 = k0 * m0 + k3 * m12 + k1 * m4 + k2 * m8;
-    a4 = k4 * m0 + k7 * m12 + k5 * m4 + k6 * m8;
-    a8 = k8 * m0 + k11 * m12 + k9 * m4 + k10 * m8;
-    a12 = k12 * m0 + k15 * m12 + k13 * m4 + k14 * m8;
+function multiply$3(out, a, b) {
+    var a00 = a[0],
+        a01 = a[1],
+        a02 = a[2],
+        a03 = a[3];
+    var a10 = a[4],
+        a11 = a[5],
+        a12 = a[6],
+        a13 = a[7];
+    var a20 = a[8],
+        a21 = a[9],
+        a22 = a[10],
+        a23 = a[11];
+    var a30 = a[12],
+        a31 = a[13],
+        a32 = a[14],
+        a33 = a[15]; // Cache only the current line of the second matrix
 
-    a1 = k0 * m1 + k3 * m13 + k1 * m5 + k2 * m9;
-    a5 = k4 * m1 + k7 * m13 + k5 * m5 + k6 * m9;
-    a9 = k8 * m1 + k11 * m13 + k9 * m5 + k10 * m9;
-    a13 = k12 * m1 + k15 * m13 + k13 * m5 + k14 * m9;
-
-    a2 = k2 * m10 + k3 * m14 + k0 * m2 + k1 * m6;
-    a6 = k6 * m10 + k7 * m14 + k4 * m2 + k5 * m6;
-    a10 = k10 * m10 + k11 * m14 + k8 * m2 + k9 * m6;
-    a14 = k14 * m10 + k15 * m14 + k12 * m2 + k13 * m6;
-
-    a3 = k2 * m11 + k3 * m15 + k0 * m3 + k1 * m7;
-    a7 = k6 * m11 + k7 * m15 + k4 * m3 + k5 * m7;
-    a11 = k10 * m11 + k11 * m15 + k8 * m3 + k9 * m7;
-    a15 = k14 * m11 + k15 * m15 + k12 * m3 + k13 * m7;
-
-    r[0] = a0;
-    r[1] = a1;
-    r[2] = a2;
-    r[3] = a3;
-    r[4] = a4;
-    r[5] = a5;
-    r[6] = a6;
-    r[7] = a7;
-    r[8] = a8;
-    r[9] = a9;
-    r[10] = a10;
-    r[11] = a11;
-    r[12] = a12;
-    r[13] = a13;
-    r[14] = a14;
-    r[15] = a15;
-}
-
-// m <- m * k
-function mulMatrix(m, k) {
-    mulStoreMatrix(m, m, k);
+    var b0 = b[0],
+        b1 = b[1],
+        b2 = b[2],
+        b3 = b[3];
+    out[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+    out[1] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+    out[2] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+    out[3] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+    b0 = b[4];
+    b1 = b[5];
+    b2 = b[6];
+    b3 = b[7];
+    out[4] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+    out[5] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+    out[6] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+    out[7] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+    b0 = b[8];
+    b1 = b[9];
+    b2 = b[10];
+    b3 = b[11];
+    out[8] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+    out[9] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+    out[10] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+    out[11] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+    b0 = b[12];
+    b1 = b[13];
+    b2 = b[14];
+    b3 = b[15];
+    out[12] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+    out[13] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+    out[14] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+    out[15] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+    return out;
 }
 
 // tx, ty, tz를 통해 이동시키는 것. -> colum Major
@@ -384,12 +379,37 @@ function translate(m, tx, ty, tz) {
     tm[12] = tx;
     tm[13] = ty;
     tm[14] = tz;
-    mulMatrix(m, tm);
+    multiply$3(m, m, tm);
 }
 
-function scale(m, sx, sy, sz) {
-    var tm = [sx, 0, 0, 0, 0, sy, 0, 0, 0, 0, sz, 0, 0, 0, 0, 1];
-    mulMatrix(m, tm);
+/**
+ * gl-matrix Function - r <- m * k
+ * Scales the mat4 by the dimensions in the given vec3 not using vectorization
+ *
+ * @param {mat4} out the receiving matrix
+ * @param {mat4} a the matrix to scale
+ * @param {vec3} v the vec3 to scale the matrix by
+ * @returns {mat4} out
+ **/
+
+function scale$3(out, x, y, z) {
+    out[0] = out[0] * x;
+    out[1] = out[1] * x;
+    out[2] = out[2] * x;
+    out[3] = out[3] * x;
+    out[4] = out[4] * y;
+    out[5] = out[5] * y;
+    out[6] = out[6] * y;
+    out[7] = out[7] * y;
+    out[8] = out[8] * z;
+    out[9] = out[9] * z;
+    out[10] = out[10] * z;
+    out[11] = out[11] * z;
+    out[12] = out[12];
+    out[13] = out[13];
+    out[14] = out[14];
+    out[15] = out[15];
+    return out;
 }
 
 // Inverse
@@ -398,16 +418,15 @@ function inverse(m, tx, ty, tz) {
     var tm = m.slice();
     m = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
     if (tm[0] !== 0)
-        tm[0] = 1 / tm[0];
+        tm[0] = 1.0 / tm[0];
     if (tm[5] !== 0)
-        tm[5] = 1 / tm[5];
+        tm[5] = 1.0 / tm[5];
     if (tm[10] !== 0)
-        tm[10] = 1 / tm[10];
+        tm[10] = 1.0 / tm[10];
     tm[12] = -tx;
     tm[13] = -ty;
     tm[14] = -tz;
-    mulMatrix(m, tm);
-    console.log(2, m);
+    multiply$3(m, m, tm);
 }
 
 // Shear
@@ -415,7 +434,7 @@ function shearMatrix(m, a) {
     var tm = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
     if (Math.sin(a) !== 0)
         tm[4] = Math.cos(a) / Math.sin(a);
-    mulMatrix(m, tm);
+    multiply$3(m, m, tm);
 }
 
 // Color
@@ -440,7 +459,7 @@ function rotateX(m, angle) {
     rm[6] = s;
     rm[9] = -s;
     rm[10] = c;
-    mulMatrix(m, rm);
+    multiply$3(m, m, rm);
 }
 
 // rotation matrix: Y축을 기준으로 - Tilt
@@ -453,7 +472,7 @@ function rotateY(m, angle) {
     rm[2] = -s;
     rm[8] = s;
     rm[10] = c;
-    mulMatrix(m, rm);
+    multiply$3(m, m, rm);
 }
 
 // rotation matrix: Z축을 기준으로 - Roll
@@ -466,7 +485,7 @@ function rotateZ(m, angle) {
     rm[1] = s;
     rm[4] = -s;
     rm[5] = c;
-    mulMatrix(m, rm);
+    multiply$3(m, m, rm);
 }
 
 // x, y, z를 제곱해서 square root for 나눗셈
@@ -518,7 +537,7 @@ function rotateArbAxis(m, angle, axis) {
     rm[14] = 0;
     rm[15] = 1;
 
-    mulMatrix(m, rm);
+    multiply$3(m, m, rm);
 }
 
 rotValue = 0.0;
@@ -881,7 +900,7 @@ function renderScene() {
     var locVmatrix = gl.getUniformLocation(gl.programObject, "Vmatrix"); // 카메라 뒤로 뺄 때 사용
     var locMmatrix = gl.getUniformLocation(gl.programObject, "Mmatrix"); // 모델 회전
 
-    idMatrix(mov_matrix);
+    identity$3(mov_matrix);
     // rotateX(mov_matrix, rotValue);
     // rotateY(mov_matrix, rotValue);
     // rotateZ(mov_matrix, rotValue);
@@ -973,10 +992,10 @@ function renderScene() {
     // clear를 안하면 그려지지 않는다.
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    idMatrix(mov_matrix);
+    identity$3(mov_matrix);
     translate(mov_matrix, transX, transY, transZ);
     rotateArbAxis(mov_matrix, rotValue, rotAxis);
-    scale(mov_matrix, sx, sy, sz);
+    scale$3(mov_matrix, sx, sy, sz);
     if (shear !== 0) {
         shearMatrix(mov_matrix, shear);
     }
@@ -990,7 +1009,7 @@ function renderScene() {
     function drawSmallCube(m, x, y, z, s, rs, rotCon) {
         if (revolve === 0) {
             translate(m, x, y, z);
-            scale(m, s, s, s);
+            scale$3(m, s, s, s);
         }
         if (rotCon === 'x')
             rotateX(m, rotValue * rs);
@@ -1002,7 +1021,7 @@ function renderScene() {
             rotateArbAxis(m, rotValue * rs, rotAxis);
         if (revolve === 1) {
             translate(m, x, y, z);
-            scale(m, s, s, s);
+            scale$3(m, s, s, s);
         }
         gl.uniformMatrix4fv(locMmatrix, false, m);
         gl.drawArrays(primitive, 0, 36);
